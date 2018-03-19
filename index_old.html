@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>L'Âge du Capitaine</title>
+        
+        <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+        <script src="game/boot.js"></script>
+        
+        <link href='https://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+        <style>
+            body
+            {
+                font-family: 'Gochi Hand', cursive;
+            }
+            
+            .fontLoader 
+            {
+                position: absolute;
+                left: -1000px;
+            }
+        </style>
+    </head>
+    <body>
+            
+        <!-- Obliger le navigateur à charger la police en affichant un . dans le vide -->
+        <div class="fontLoader">.</div>
+        
+        <!-- Code du jeu -->
+        <script type="text/javascript">
+    
+            window.onload = function() 
+            {
+                //Constantes
+                var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render});
+                var disableMouse = false;
+                
+                //Sprites
+                var mouse;
+                var pompier;
+                var caserne;
+                
+                //Particules
+                var smoke;
+                
+                //Textes
+                var title;
+                var subtitle;
+                var credits;
+                
+                //Sons
+                var titleMusic;
+                
+                function preload() 
+                {
+                    //Images
+                    game.load.image("background", "assets/background.png");
+                    game.load.image("mouse", "assets/mouse.png");
+                    game.load.image("pompier", "assets/pompier.png");
+                    game.load.image("caserne", "assets/caserne.png");
+                    game.load.image("smoke", "assets/smoke.png");
+                    
+                    //Sons
+                    game.load.audio('title', 'assets/title.ogg');
+                }
+        
+                function create()
+                {
+                   //Init
+                   game.input.keyboard.onDownCallback = downCallback;
+                   
+                   
+                   //Sprites
+                   this.game.add.sprite(0, 0, "background");
+                   
+                   caserne = this.game.add.sprite(400, 300, "caserne");
+                   caserne.anchor.x = 0.5;
+                   caserne.anchor.y = 0.5;
+                   
+                   pompier = this.game.add.sprite(165, 675, "pompier");
+                   pompier.scale.x = 0.6;
+                   pompier.scale.y = 0.6;
+                   pompier.anchor.x = 0.4;
+                   pompier.anchor.y = 0.8;
+                   pompier.angle = -5;
+               
+                   //Particles
+                   smoke = game.add.emitter(550, 150, 380);
+                   smoke.makeParticles("smoke");
+                   smoke.minParticleScale = 0.5;
+                   smoke.maxParticleScale = 0.5;
+                   smoke.gravity = -150;
+                   smoke.start(false, 5000, 350);
+                   
+                   //Sons
+                   titleMusic = game.add.audio("title");
+                   titleMusic.onLoop.add(playTitleMusic, this);
+                   titleMusic.play('', 0, 1, true);
+                   
+                   //Textes
+                   title = this.game.add.text(200, 50, "L'Âge du Capitaine", {font: "48px 'Gochi Hand'"});
+                   title.anchor.x = 0.5;
+                   title.anchor.y = 0.5;
+                   title.angle = -5;
+                   
+                   subtitle = this.game.add.text(600, 540, "Appuyez sur ENTREE pour jouer !", {font: "24px 'Gochi Hand'"});
+                   subtitle.anchor.x = 0.5;
+                   subtitle.anchor.y = 0.5;
+                   
+                   credits = this.game.add.text(415, 580, "Code : Nathan SALAUN - Dessin : Nicolas GOUREAU", {font: "18px 'Gochi Hand'"});
+                   subtitle.anchor.x = 0.5;
+
+                   //Toujours garder ça à la fin !
+                   mouse = this.game.add.sprite(0, 0, "mouse");
+                   mouse.visible = false;
+                   game.input.addMoveCallback(mouseMove);
+                }
+                
+                function playTitleMusic()
+                {
+                    titleMusic.play('', 0, 1, true);
+                }
+                
+                var mousecounter = 0;
+                
+                function update() 
+                {
+                    //Mouse
+                    if (mouse.visible == true && mousecounter != 15)
+                    {
+                        mousecounter++;
+                    }
+                    else
+                    {
+                        mouse.visible = false;
+                        mousecounter = 0;
+                    }
+                    
+                    //Title
+                    if (title.visible)
+                    {
+                        if (subtitle.scale.x == 1.0)
+                        {
+                           //Tweens
+                           game.add.tween(subtitle.scale).to({x: 1.15, y: 1.15}, 380, Phaser.Easing.Sinusoidal.Out, true);
+                           game.add.tween(pompier).to({angle: 5}, 380, Phaser.Easing.Sinusoidal.Out, true);
+                        }
+                        else if (subtitle.scale.x == 1.15)
+                        {
+                           //Tweens
+                           game.add.tween(subtitle.scale).to({x: 1, y: 1}, 380, Phaser.Easing.Sinusoidal.Out, true);
+                           game.add.tween(pompier).to({angle: -5}, 380, Phaser.Easing.Sinusoidal.Out, true);
+                        }
+                    }
+
+                    
+                }
+                
+                function mouseMove()
+                {
+                    if (disableMouse)
+                    {
+                        mouse.visible = true;
+                        mousecounter = 0;
+                    }
+                    
+                }
+                
+                function render() 
+                {
+                }
+                
+                function downCallback(e)
+                {
+                    if (title.visible == true && e.keyCode == Phaser.Keyboard.ENTER)
+                    {
+                        title.visible = false;
+                        subtitle.visible = false;
+                        credits.visible = false;
+                    }
+                }
+        
+            };
+    
+        </script>
+    
+    </body>
+</html>
